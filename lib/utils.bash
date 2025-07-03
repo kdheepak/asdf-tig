@@ -53,6 +53,7 @@ install_version() {
 	(
 		cd "$ASDF_DOWNLOAD_PATH"
 
+		mkdir -p "$install_path"
 		make
 		make prefix="$install_path" install
 	) || fail "Failed to build and install $TOOL_NAME"
