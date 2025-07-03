@@ -14,11 +14,6 @@ fail() {
 
 curl_opts=(-fsSL)
 
-# NOTE: You might want to remove this if tig is not hosted on GitHub releases.
-if [ -n "${GITHUB_API_TOKEN:-}" ]; then
-    curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
-fi
-
 sort_versions() {
     sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' |
         LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
@@ -42,6 +37,7 @@ download_release() {
     url="$GH_REPO/archive/${version}.tar.gz"
 
     echo "* Downloading $TOOL_NAME release $version..."
+    echo curl "${curl_opts[@]}" -o "$filename" -C - "$url"
     curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
 }
 
@@ -59,11 +55,11 @@ install_version() {
     (
         cd "$ASDF_DOWNLOAD_PATH"
 
-        ./autogen.sh || true # sometimes needed
-        ./configure --prefix="$install_path"
         make
-        make install prefix="$install_path"
+        make prefix="$install_path" install
     ) || fail "Failed to build and install $TOOL_NAME"
 
-    echo "$TOOL_NAME $version installation was successful!"
+    local binary_path="$install_path/bin"
+    test -x "$binary_path/$TOOL_NAME" || fail "Expected $binary_path/$TOOL_NAME to be executable."
+    echo "* $TOOL_NAME $version installation was successful!"
 }
