@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for tig.
-GH_REPO="https://github.com/jonas/tig/"
+GH_REPO="https://github.com/jonas/tig"
 TOOL_NAME="tig"
 TOOL_TEST="tig --help"
 
